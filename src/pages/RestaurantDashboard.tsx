@@ -5,8 +5,9 @@ import { z } from 'zod';
 import { addDoc, collection, query, where, onSnapshot, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
-import { Listing, ListingType } from '../types';
-import { Plus, Clock, Tag, DollarSign, Loader2, LogOut, MapPin } from 'lucide-react';
+import { Listing, ListingType, Reservation } from '../types';
+import QRScanner from '../components/QRScanner';
+import { Plus, Clock, Tag, DollarSign, Loader2, LogOut, MapPin, ScanLine, QrCode } from 'lucide-react';
 import { format } from 'date-fns';
 
 const listingSchema = z.object({
@@ -43,8 +44,10 @@ const RestaurantDashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [listings, setListings] = useState<Listing[]>([]);
+  const [reservations, setReservations] = useState<Record<string, Reservation>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [geocodeStatus, setGeocodeStatus] = useState<'idle' | 'loading' | 'found' | 'failed'>('idle');
+  const [scanningListingId, setScanningListingId] = useState<string | null>(null);
 
   const { register, handleSubmit, watch, reset, unregister, formState: { errors } } = useForm<ListingFormValues>({
     resolver: zodResolver(listingSchema),
@@ -84,6 +87,29 @@ const RestaurantDashboard: React.FC = () => {
 
     return () => unsubscribe();
   }, [user]);
+
+  // Fetch reservations for this restaurant's listings
+  useEffect(() => {
+    if (!user || listings.length === 0) return;
+
+    const listingIds = listings.map(l => l.id);
+    const q = query(
+      collection(db, 'reservations'),
+      where('listingId', 'in', listingIds),
+      where('status', '==', 'active')
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const resMap: Record<string, Reservation> = {};
+      snapshot.docs.forEach(doc => {
+        const res = { id: doc.id, ...doc.data() } as Reservation;
+        resMap[res.listingId] = res;
+      });
+      setReservations(resMap);
+    });
+
+    return () => unsubscribe();
+  }, [user, listings]);
 
   const onSubmit = async (data: ListingFormValues) => {
     if (!user) { alert('Not logged in'); return; }
@@ -143,6 +169,44 @@ const RestaurantDashboard: React.FC = () => {
       });
     } catch (error) {
       console.error("Error updating status:", error);
+    }
+  };
+
+  const handleQRScan = async (scannedData: string) => {
+    if (!scanningListingId) return;
+
+    const reservation = reservations[scanningListingId];
+    if (!reservation) {
+      alert('No active reservation found for this listing');
+      setScanningListingId(null);
+      return;
+    }
+
+    // Validate QR code matches
+    if (scannedData !== reservation.qrCode && !scannedData.includes(reservation.qrCode)) {
+      alert('Invalid QR code. This reservation does not match.');
+      setScanningListingId(null);
+      return;
+    }
+
+    try {
+      // Complete the reservation
+      await updateDoc(doc(db, 'reservations', reservation.id), {
+        status: 'completed',
+        completedAt: serverTimestamp()
+      });
+
+      // Mark listing as picked up
+      await updateDoc(doc(db, 'listings', scanningListingId), {
+        status: 'picked_up'
+      });
+
+      alert('Handoff confirmed! Customer pickup verified.');
+    } catch (error) {
+      console.error('Error confirming handoff:', error);
+      alert('Failed to confirm handoff');
+    } finally {
+      setScanningListingId(null);
     }
   };
 
@@ -273,7 +337,24 @@ const RestaurantDashboard: React.FC = () => {
               </div>
 
               <div className="pt-4 border-t flex justify-between items-center">
-                 <button className="text-green-600 font-medium hover:underline">View QR Code</button>
+                 {reservations[listing.id] ? (
+                   <button 
+                     onClick={() => setScanningListingId(listing.id)}
+                     className="text-green-600 font-medium hover:underline flex items-center gap-1"
+                   >
+                     <ScanLine size={16} /> Scan Customer QR
+                   </button>
+                 ) : (
+                   <button 
+                     onClick={() => {
+                       const qrData = `surplusly-listing-${listing.id}`;
+                       alert(`Listing QR: ${qrData}\n\n(Customers scan this to view the listing)`);
+                     }}
+                     className="text-gray-500 font-medium hover:underline flex items-center gap-1"
+                   >
+                     <QrCode size={16} /> View Listing QR
+                   </button>
+                 )}
                  
                  {listing.status === 'live' && (
                    <button 
@@ -294,6 +375,13 @@ const RestaurantDashboard: React.FC = () => {
           )}
         </div>
       </div>
+
+      <QRScanner
+        isOpen={!!scanningListingId}
+        onClose={() => setScanningListingId(null)}
+        onScan={handleQRScan}
+        title="Scan Customer's QR Code"
+      />
     </div>
   );
 };

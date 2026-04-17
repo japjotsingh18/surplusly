@@ -3,7 +3,8 @@ import { collection, query, where, onSnapshot, updateDoc, doc, addDoc, serverTim
 import { db } from '../lib/firebase';
 import { Listing, RescueTask } from '../types';
 import { useAuth } from '../context/AuthContext';
-import { MapPin, Clock, CheckCircle, Navigation, Package } from 'lucide-react';
+import { MapPin, Clock, CheckCircle, Navigation, Package, QrCode } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { format } from 'date-fns';
 
 const VolunteerDashboard: React.FC = () => {
@@ -82,9 +83,14 @@ const VolunteerDashboard: React.FC = () => {
 
   const handleUpdateStatus = async (taskId: string, newStatus: 'picked_up' | 'delivered') => {
     try {
-      await updateDoc(doc(db, 'rescue_tasks', taskId), {
-        status: newStatus
-      });
+      const updateData: any = { status: newStatus };
+      
+      // Generate delivery QR when marking as picked up
+      if (newStatus === 'picked_up') {
+        updateData.deliveryQr = `surplusly-delivery-${taskId}`;
+      }
+      
+      await updateDoc(doc(db, 'rescue_tasks', taskId), updateData);
       alert(`Task marked as ${newStatus.replace('_', ' ')}!`);
     } catch (error) {
       console.error("Error updating status:", error);
@@ -197,12 +203,29 @@ const VolunteerDashboard: React.FC = () => {
                       </button>
                     )}
                     {task.status === 'picked_up' && (
-                      <button
-                        onClick={() => handleUpdateStatus(task.id, 'delivered')}
-                        className="flex-1 bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition flex items-center justify-center gap-2"
-                      >
-                        <CheckCircle size={20} /> Confirm Delivery
-                      </button>
+                      <>
+                        <div className="md:col-span-2 bg-white p-4 rounded-lg border-2 border-dashed border-green-300 text-center">
+                          <p className="text-sm text-gray-600 mb-2 flex items-center justify-center gap-1">
+                            <QrCode size={16} /> Show this QR to NGO
+                          </p>
+                          <div className="flex justify-center">
+                            <QRCodeSVG 
+                              value={task.deliveryQr || `surplusly-delivery-${task.id}`} 
+                              size={150}
+                              level="H"
+                            />
+                          </div>
+                          <p className="text-xs text-gray-400 mt-2">
+                            Scan to confirm delivery receipt
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => handleUpdateStatus(task.id, 'delivered')}
+                          className="flex-1 bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition flex items-center justify-center gap-2"
+                        >
+                          <CheckCircle size={20} /> Confirm Delivery
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>

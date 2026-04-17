@@ -25,7 +25,7 @@ export interface User {
   createdAt: Date;
 }
 
-export type ListingStatus = 'live' | 'rescue_mode' | 'assigned' | 'picked_up' | 'delivered' | 'expired';
+export type ListingStatus = 'live' | 'reserved' | 'rescue_mode' | 'assigned' | 'picked_up' | 'delivered' | 'expired';
 export type ListingType = 'discounted' | 'donation';
 
 export interface Listing {

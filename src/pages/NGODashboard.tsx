@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, onSnapshot, updateDoc, doc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, updateDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { RescueTask } from '../types';
 import { useAuth } from '../context/AuthContext';
-import { Truck, CheckCircle, Package, Clock } from 'lucide-react';
+import { Truck, CheckCircle, Package, Clock, ScanLine } from 'lucide-react';
+import QRScanner from '../components/QRScanner';
 import { format } from 'date-fns';
 
 const NGODashboard: React.FC = () => {
@@ -11,6 +12,7 @@ const NGODashboard: React.FC = () => {
   const [incomingDeliveries, setIncomingDeliveries] = useState<RescueTask[]>([]);
   const [history, setHistory] = useState<RescueTask[]>([]);
   const [isAccepting, setIsAccepting] = useState(true);
+  const [scanningTaskId, setScanningTaskId] = useState<string | null>(null);
 
   // Fetch incoming deliveries (status = picked_up)
   useEffect(() => {
@@ -49,6 +51,47 @@ const NGODashboard: React.FC = () => {
 
     return () => unsubscribe();
   }, []);
+
+  const handleQRScan = async (scannedData: string) => {
+    if (!scanningTaskId) return;
+
+    const task = incomingDeliveries.find(t => t.id === scanningTaskId);
+    if (!task) {
+      alert('Task not found');
+      setScanningTaskId(null);
+      return;
+    }
+
+    // Validate QR code - should match the delivery QR or listing ID
+    const expectedQr = task.deliveryQr || `surplusly-delivery-${task.id}`;
+    if (scannedData !== expectedQr && !scannedData.includes(task.id)) {
+      alert('Invalid QR code. This does not match the delivery.');
+      setScanningTaskId(null);
+      return;
+    }
+
+    try {
+      // Mark task as delivered
+      await updateDoc(doc(db, 'rescue_tasks', task.id), {
+        status: 'delivered',
+        deliveredAt: serverTimestamp()
+      });
+
+      // Also mark the original listing as delivered
+      if (task.listingId) {
+        await updateDoc(doc(db, 'listings', task.listingId), {
+          status: 'delivered'
+        });
+      }
+
+      alert('Delivery confirmed! Food received.');
+    } catch (error) {
+      console.error('Error confirming delivery:', error);
+      alert('Failed to confirm delivery');
+    } finally {
+      setScanningTaskId(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
@@ -107,8 +150,11 @@ const NGODashboard: React.FC = () => {
                     <p>John Doe (Simulated)</p>
                   </div>
 
-                  <button className="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition">
-                    Scan QR to Confirm Receipt
+                  <button 
+                    onClick={() => setScanningTaskId(task.id)}
+                    className="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition flex items-center justify-center gap-2"
+                  >
+                    <ScanLine size={20} /> Scan QR to Confirm Receipt
                   </button>
                 </div>
               ))
@@ -145,6 +191,13 @@ const NGODashboard: React.FC = () => {
 
         </div>
       </div>
+
+      <QRScanner
+        isOpen={!!scanningTaskId}
+        onClose={() => setScanningTaskId(null)}
+        onScan={handleQRScan}
+        title="Scan Delivery QR Code"
+      />
     </div>
   );
 };
