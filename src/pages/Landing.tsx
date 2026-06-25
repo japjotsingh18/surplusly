@@ -1,20 +1,107 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Leaf, Heart, MapPin } from 'lucide-react';
+import {
+  ArrowRight,
+  BellRing,
+  Building2,
+  Clock,
+  HandHeart,
+  Leaf,
+  QrCode,
+  ShoppingBag,
+  Truck,
+} from 'lucide-react';
+
+const highlights = [
+  {
+    title: 'Discounted Food Deals',
+    desc: 'Customers can reserve nearby surplus meals at reduced prices before the pickup window closes.',
+    icon: Clock,
+    color: 'text-green-600',
+    bg: 'bg-green-50',
+    ring: 'ring-green-100',
+    tag: 'Save on meals',
+  },
+  {
+    title: 'Auto Rescue Mode',
+    desc: 'If food goes unclaimed, the workflow can route it toward volunteers and donation partners.',
+    icon: HandHeart,
+    color: 'text-orange-500',
+    bg: 'bg-orange-50',
+    ring: 'ring-orange-100',
+    tag: 'No waste fallback',
+  },
+  {
+    title: 'QR-Confirmed Pickups',
+    desc: 'Customers, restaurants, volunteers, and NGOs can verify each handoff with simple QR checkpoints.',
+    icon: QrCode,
+    color: 'text-blue-500',
+    bg: 'bg-blue-50',
+    ring: 'ring-blue-100',
+    tag: 'Verified flow',
+  },
+];
+
+const steps = [
+  {
+    title: 'Post surplus',
+    desc: 'Restaurants add extra food, quantity, price, dietary tags, and pickup deadline.',
+    icon: Building2,
+    accent: 'bg-green-600',
+  },
+  {
+    title: 'Reserve nearby food',
+    desc: 'Customers discover live deals, reserve a listing, and receive a pickup QR code.',
+    icon: ShoppingBag,
+    accent: 'bg-orange-500',
+  },
+  {
+    title: 'Escalate if unclaimed',
+    desc: 'Listings can move into rescue mode when the customer pickup window is running out.',
+    icon: BellRing,
+    accent: 'bg-red-500',
+  },
+  {
+    title: 'Rescue and deliver',
+    desc: 'Volunteers complete pickup and drop-off so NGOs can confirm receipt.',
+    icon: Truck,
+    accent: 'bg-blue-500',
+  },
+];
 
 const Landing: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Hero Section */}
-      <header className="bg-gradient-to-r from-green-600 to-green-500 text-white py-20 px-4">
+      <header className="bg-gradient-to-r from-green-600 to-green-500 text-white px-4 pb-20 pt-6">
+        <nav className="max-w-6xl mx-auto mb-16 flex items-center justify-between">
+          <Link to="/" className="group flex items-center gap-3" aria-label="Surplusly home">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-green-600 shadow-lg shadow-green-900/10 transition group-hover:scale-105">
+              <Leaf className="h-6 w-6" />
+            </span>
+            <span>
+              <span className="block text-2xl font-black tracking-tight">Surplusly</span>
+              <span className="block text-xs font-semibold uppercase tracking-[0.28em] text-white/70">
+                Food rescue marketplace
+              </span>
+            </span>
+          </Link>
+          <Link
+            to="/auth/login"
+            className="hidden rounded-full border border-white/30 bg-white/10 px-5 py-2 text-sm font-bold text-white backdrop-blur transition hover:bg-white hover:text-green-700 sm:inline-flex"
+          >
+            Sign in
+          </Link>
+        </nav>
+
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between">
           <div className="md:w-1/2 mb-10 md:mb-0">
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
               Save food.<br />Feed people.
             </h1>
             <p className="text-xl mb-8 opacity-90">
-              Surplusly bridges the gap between restaurant surplus and community needs. 
-              Join us in fighting food waste and hunger.
+              Discover discounted surplus food from nearby restaurants before it goes to waste. 
+              If it is not claimed, Surplusly helps route it toward community rescue.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link to="/customer/browse" className="bg-white text-green-600 px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition flex items-center justify-center">
@@ -53,44 +140,68 @@ const Landing: React.FC = () => {
         </div>
       </header>
 
-      {/* Impact Stats */}
-      <section className="py-12 bg-white shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-          <div className="p-6">
-            <div className="text-green-600 mb-2 flex justify-center"><Leaf className="w-8 h-8" /></div>
-            <div className="text-4xl font-bold text-gray-800 mb-1">1,250+</div>
-            <div className="text-gray-500">Meals Saved</div>
-          </div>
-          <div className="p-6 border-l border-r border-gray-100">
-            <div className="text-orange-500 mb-2 flex justify-center"><Heart className="w-8 h-8" /></div>
-            <div className="text-4xl font-bold text-gray-800 mb-1">850 kg</div>
-            <div className="text-gray-500">Food Rescued</div>
-          </div>
-          <div className="p-6">
-            <div className="text-blue-500 mb-2 flex justify-center"><MapPin className="w-8 h-8" /></div>
-            <div className="text-4xl font-bold text-gray-800 mb-1">45</div>
-            <div className="text-gray-500">Local Partners</div>
-          </div>
+      {/* MVP Highlights */}
+      <section className="-mt-10 px-4 pb-14">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 gap-4 md:grid-cols-3">
+          {highlights.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <article
+                key={item.title}
+                className="group rounded-3xl border border-gray-100 bg-white p-6 shadow-xl shadow-gray-200/60 transition duration-300 hover:-translate-y-1 hover:shadow-2xl"
+              >
+                <div className="mb-5 flex items-center justify-between">
+                  <div className={`${item.bg} ${item.color} ${item.ring} flex h-14 w-14 items-center justify-center rounded-2xl ring-8 transition group-hover:scale-105`}>
+                    <Icon className="h-7 w-7" />
+                  </div>
+                  <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-gray-500">
+                    {item.tag}
+                  </span>
+                </div>
+                <h2 className="mb-3 text-2xl font-black tracking-tight text-gray-900">{item.title}</h2>
+                <p className="text-base leading-7 text-gray-600">{item.desc}</p>
+              </article>
+            );
+          })}
         </div>
       </section>
 
       {/* How it works */}
-      <section className="py-20 px-4">
+      <section className="relative overflow-hidden px-4 py-20">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,_rgba(34,197,94,0.12),_transparent_35%),linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)]" />
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-16 text-gray-800">How Surplusly Works</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { title: '1. Post Surplus', desc: 'Restaurants list extra food before closing.', icon: '🏪' },
-              { title: '2. Customer Pickup', desc: 'Locals buy at a discount.', icon: '🛍️' },
-              { title: '3. Rescue Mode', desc: 'Unclaimed food is flagged for rescue.', icon: '🚨' },
-              { title: '4. Donate', desc: 'Volunteers deliver to NGOs.', icon: '🤝' },
-            ].map((step, i) => (
-              <div key={i} className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition border border-gray-100">
-                <div className="text-4xl mb-4">{step.icon}</div>
-                <h3 className="font-bold text-xl mb-2">{step.title}</h3>
-                <p className="text-gray-600">{step.desc}</p>
-              </div>
-            ))}
+          <div className="mx-auto mb-12 max-w-3xl text-center">
+            <span className="mb-4 inline-flex rounded-full bg-green-100 px-4 py-2 text-sm font-bold text-green-700">
+              Browse to pickup to rescue
+            </span>
+            <h2 className="text-4xl font-black tracking-tight text-gray-900 md:text-5xl">How Surplusly Works</h2>
+            <p className="mt-4 text-lg leading-8 text-gray-600">
+              The MVP keeps the food journey simple: list it, reserve it, and rescue it before it becomes waste.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+            {steps.map((step, i) => {
+              const Icon = step.icon;
+
+              return (
+                <article
+                  key={step.title}
+                  className="relative overflow-hidden rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
+                >
+                  <div className={`absolute left-0 top-0 h-1.5 w-full ${step.accent}`} />
+                  <div className="mb-8 flex items-start justify-between">
+                    <div className={`${step.accent} flex h-14 w-14 items-center justify-center rounded-2xl p-3 text-white shadow-lg`}>
+                      <Icon className="h-7 w-7" />
+                    </div>
+                    <span className="text-5xl font-black leading-none text-gray-100">0{i + 1}</span>
+                  </div>
+                  <h3 className="mb-3 text-2xl font-black text-gray-950">{step.title}</h3>
+                  <p className="text-base leading-7 text-gray-600">{step.desc}</p>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
