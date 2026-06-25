@@ -71,17 +71,17 @@ const steps = [
 
 const Landing: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="flex min-h-screen flex-col overflow-x-hidden bg-gray-50">
       {/* Hero Section */}
-      <header className="bg-gradient-to-r from-green-600 to-green-500 text-white px-4 pb-20 pt-6">
-        <nav className="max-w-6xl mx-auto mb-16 flex items-center justify-between">
+      <header className="bg-gradient-to-r from-green-600 to-green-500 px-4 pb-16 pt-5 text-white sm:pb-20 sm:pt-6">
+        <nav className="mx-auto mb-10 flex max-w-6xl items-center justify-between gap-4 sm:mb-16">
           <Link to="/" className="group flex items-center gap-3" aria-label="Surplusly home">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-green-600 shadow-lg shadow-green-900/10 transition group-hover:scale-105">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-green-600 shadow-lg shadow-green-900/10 transition group-hover:scale-105 sm:h-11 sm:w-11">
               <Leaf className="h-6 w-6" />
             </span>
-            <span>
-              <span className="block text-2xl font-black tracking-tight">Surplusly</span>
-              <span className="block text-xs font-semibold uppercase tracking-[0.28em] text-white/70">
+            <span className="min-w-0">
+              <span className="block text-xl font-black tracking-tight sm:text-2xl">Surplusly</span>
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70 sm:text-xs sm:tracking-[0.28em]">
                 Food rescue marketplace
               </span>
             </span>
@@ -94,44 +94,44 @@ const Landing: React.FC = () => {
           </Link>
         </nav>
 
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between">
-          <div className="md:w-1/2 mb-10 md:mb-0">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between md:flex-row">
+          <div className="mb-10 md:mb-0 md:w-1/2">
+            <h1 className="mb-5 text-5xl font-black leading-[0.95] tracking-tight sm:text-6xl md:text-7xl">
               Save food.<br />Feed people.
             </h1>
-            <p className="text-xl mb-8 opacity-90">
+            <p className="mb-7 max-w-xl text-lg leading-8 opacity-90 sm:text-xl">
               Discover discounted surplus food from nearby restaurants before it goes to waste. 
               If it is not claimed, Surplusly helps route it toward community rescue.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/customer/browse" className="bg-white text-green-600 px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition flex items-center justify-center">
+              <Link to="/customer/browse" className="flex items-center justify-center rounded-full bg-white px-8 py-4 font-bold text-green-600 transition hover:bg-gray-100">
                 Find Food <ArrowRight className="ml-2 w-5 h-5" />
               </Link>
-              <Link to="/auth/signup?role=restaurant" className="bg-green-700 text-white px-8 py-3 rounded-full font-bold hover:bg-green-800 transition flex items-center justify-center">
+              <Link to="/auth/signup?role=restaurant" className="flex items-center justify-center rounded-full bg-green-700 px-8 py-4 font-bold text-white transition hover:bg-green-800">
                 I'm a Restaurant
               </Link>
             </div>
-            <div className="mt-6 flex gap-4 text-sm font-medium">
+            <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium">
               <Link to="/auth/signup?role=volunteer" className="hover:underline">Volunteer to Rescue</Link>
               <span className="opacity-50">|</span>
               <Link to="/auth/signup?role=ngo" className="hover:underline">NGO Partner</Link>
             </div>
           </div>
-          <div className="md:w-1/2 flex justify-center">
-            <div className="bg-white/20 p-8 rounded-2xl backdrop-blur-sm border border-white/30 shadow-xl max-w-sm">
+          <div className="flex w-full justify-center md:w-1/2">
+            <div className="w-full max-w-sm rounded-3xl border border-white/30 bg-white/20 p-5 shadow-xl backdrop-blur-sm sm:p-8">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-2xl">🍔</div>
-                <div>
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-orange-500 text-2xl">🍔</div>
+                <div className="min-w-0">
                   <div className="font-bold">Spicy Chicken Burger</div>
                   <div className="text-sm opacity-90">Only 3 left • 40% OFF</div>
                 </div>
               </div>
-              <div className="flex justify-between items-end">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <div className="text-sm line-through opacity-70">$12.00</div>
                   <div className="text-2xl font-bold">$7.20</div>
                 </div>
-                <div className="bg-white text-green-600 px-4 py-1 rounded-full text-sm font-bold">
+                <div className="rounded-full bg-white px-4 py-2 text-center text-sm font-bold text-green-600">
                   00:45:00 left
                 </div>
               </div>
@@ -141,7 +141,7 @@ const Landing: React.FC = () => {
       </header>
 
       {/* MVP Highlights */}
-      <section className="-mt-10 px-4 pb-14">
+      <section className="-mt-8 px-4 pb-14 sm:-mt-10">
         <div className="max-w-6xl mx-auto grid grid-cols-1 gap-4 md:grid-cols-3">
           {highlights.map((item) => {
             const Icon = item.icon;
@@ -168,14 +168,14 @@ const Landing: React.FC = () => {
       </section>
 
       {/* How it works */}
-      <section className="relative overflow-hidden px-4 py-20">
+      <section className="relative overflow-hidden px-4 py-16 sm:py-20">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,_rgba(34,197,94,0.12),_transparent_35%),linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)]" />
         <div className="max-w-6xl mx-auto">
           <div className="mx-auto mb-12 max-w-3xl text-center">
             <span className="mb-4 inline-flex rounded-full bg-green-100 px-4 py-2 text-sm font-bold text-green-700">
               Browse to pickup to rescue
             </span>
-            <h2 className="text-4xl font-black tracking-tight text-gray-900 md:text-5xl">How Surplusly Works</h2>
+            <h2 className="text-3xl font-black tracking-tight text-gray-900 sm:text-4xl md:text-5xl">How Surplusly Works</h2>
             <p className="mt-4 text-lg leading-8 text-gray-600">
               The MVP keeps the food journey simple: list it, reserve it, and rescue it before it becomes waste.
             </p>

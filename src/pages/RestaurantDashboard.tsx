@@ -411,42 +411,48 @@ const RestaurantDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gray-50 px-4 pb-28 pt-5 sm:px-6 sm:py-8 lg:px-8">
       <div className="max-w-6xl mx-auto">
-        <header className="flex justify-between items-center mb-8">
-          <div>
-            <div className="flex items-center gap-4">
-              <h1 className="text-3xl font-bold text-gray-900">Restaurant Dashboard</h1>
-              <button onClick={() => logout()} className="text-gray-500 hover:text-red-500 transition" title="Logout">
+        <header className="mb-6 flex flex-col gap-5 sm:mb-8 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <div className="flex items-start justify-between gap-3 sm:justify-start">
+              <h1 className="max-w-[13ch] text-3xl font-black leading-tight tracking-tight text-gray-950 sm:max-w-none sm:text-4xl">
+                Restaurant Dashboard
+              </h1>
+              <button
+                onClick={() => logout()}
+                className="mt-1 shrink-0 rounded-full border border-gray-200 bg-white p-2 text-gray-500 shadow-sm transition hover:border-red-200 hover:text-red-500"
+                title="Logout"
+              >
                 <LogOut size={20} />
               </button>
             </div>
-            <p className="text-gray-600">Welcome back, {user?.name}</p>
+            <p className="mt-2 break-words text-base text-gray-600 sm:text-lg">Welcome back, {user?.name}</p>
           </div>
-          <div className="flex flex-wrap justify-end gap-3">
+          <div className="grid w-full grid-cols-1 gap-3 sm:w-auto sm:min-w-[320px] sm:grid-cols-2">
             <button
               onClick={() => setShowAddressForm(!showAddressForm)}
-              className="flex items-center gap-2 rounded-lg border border-green-200 bg-white px-4 py-2 font-semibold text-green-700 transition hover:bg-green-50"
+              className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-green-200 bg-white px-4 py-3 text-sm font-bold text-green-700 shadow-sm transition hover:bg-green-50 sm:text-base"
             >
               <MapPin size={20} /> Add Pickup Address
             </button>
             <button
               onClick={() => setShowForm(!showForm)}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-700 transition"
+              className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-green-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-green-700 sm:text-base"
             >
               <Plus size={20} /> Post Surplus
             </button>
           </div>
         </header>
 
-        <section className="mb-8 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+        <section className="mb-8 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
           <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Saved Pickup Addresses</h2>
-              <p className="text-sm text-gray-600">Add your restaurant pickup locations once, then reuse them for every surplus post.</p>
+              <h2 className="text-xl font-black text-gray-950">Saved Pickup Addresses</h2>
+              <p className="mt-1 text-sm leading-6 text-gray-600">Add your restaurant pickup locations once, then reuse them for every surplus post.</p>
             </div>
             {pickupLocations.length > 0 && (
-              <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
+              <span className="self-start rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700 sm:self-auto">
                 {pickupLocations.length} saved
               </span>
             )}
@@ -465,14 +471,14 @@ const RestaurantDashboard: React.FC = () => {
           ) : (
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               {pickupLocations.map(location => (
-                <div key={location.id} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                <div key={location.id} className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
                   <div className="flex items-start gap-3">
-                    <div className="rounded-full bg-green-100 p-2 text-green-700">
+                    <div className="shrink-0 rounded-full bg-green-100 p-2 text-green-700">
                       <MapPin size={18} />
                     </div>
-                    <div>
-                      <p className="font-semibold text-gray-900">{location.label}</p>
-                      <p className="mt-1 text-sm leading-5 text-gray-600">{location.address}</p>
+                    <div className="min-w-0">
+                      <p className="break-words font-bold text-gray-900">{location.label}</p>
+                      <p className="mt-1 break-words text-sm leading-5 text-gray-600">{location.address}</p>
                     </div>
                   </div>
                 </div>
@@ -523,14 +529,14 @@ const RestaurantDashboard: React.FC = () => {
                 {locationErrors.city && <p className="text-red-500 text-sm">{locationErrors.city.message}</p>}
               </div>
 
-              <div className="md:col-span-3 flex justify-end gap-2">
-                <button type="button" onClick={() => setShowAddressForm(false)} className="rounded-md border px-4 py-2 hover:bg-gray-50">
+              <div className="flex flex-col-reverse gap-2 md:col-span-3 sm:flex-row sm:justify-end">
+                <button type="button" onClick={() => setShowAddressForm(false)} className="rounded-xl border px-4 py-3 font-semibold hover:bg-gray-50">
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingLocation}
-                  className="flex items-center gap-2 rounded-md bg-green-600 px-4 py-2 font-semibold text-white transition hover:bg-green-700 disabled:opacity-70"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-green-600 px-4 py-3 font-semibold text-white transition hover:bg-green-700 disabled:opacity-70"
                 >
                   {isSavingLocation && <Loader2 className="h-4 w-4 animate-spin" />}
                   Save Address
@@ -598,14 +604,14 @@ const RestaurantDashboard: React.FC = () => {
                 </div>
               )}
 
-              <div className="md:col-span-2 flex justify-end gap-2">
-                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 border rounded-md hover:bg-gray-50">
+              <div className="flex flex-col-reverse gap-2 md:col-span-2 sm:flex-row sm:justify-end">
+                <button type="button" onClick={() => setShowForm(false)} className="rounded-xl border px-4 py-3 font-semibold hover:bg-gray-50">
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isLoading || pickupLocations.length === 0}
-                  className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 flex items-center gap-2 disabled:opacity-70"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-green-600 px-4 py-3 font-semibold text-white hover:bg-green-700 disabled:opacity-70"
                 >
                   {isLoading && <Loader2 className="animate-spin h-4 w-4" />} Post Listing
                 </button>
@@ -622,10 +628,10 @@ const RestaurantDashboard: React.FC = () => {
 
             return (
               <div key={listing.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="font-bold text-lg">{listing.itemName}</h3>
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <h3 className="min-w-0 break-words text-lg font-bold">{listing.itemName}</h3>
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-bold ${
+                    className={`shrink-0 rounded-full px-2 py-1 text-xs font-bold ${
                       displayStatus === 'live'
                         ? 'bg-green-100 text-green-800'
                         : displayStatus === 'reserved'
@@ -644,13 +650,13 @@ const RestaurantDashboard: React.FC = () => {
                 </div>
 
                 <div className="space-y-2 text-sm text-gray-600 mb-4">
-                  <div className="flex items-center gap-2">
-                    <Tag size={16} />
-                    <span>{listing.quantity}x • {listing.dietaryTags.join(', ') || 'No tags'}</span>
+                  <div className="flex items-start gap-2">
+                    <Tag size={16} className="mt-0.5 shrink-0" />
+                    <span className="min-w-0 break-words">{listing.quantity}x • {listing.dietaryTags.join(', ') || 'No tags'}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Clock size={16} />
-                    <span>Pickup by: {format(listing.pickupBy, 'PP p')}</span>
+                  <div className="flex items-start gap-2">
+                    <Clock size={16} className="mt-0.5 shrink-0" />
+                    <span className="min-w-0 break-words">Pickup by: {format(listing.pickupBy, 'PP p')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <DollarSign size={16} />
@@ -658,15 +664,15 @@ const RestaurantDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="pt-4 border-t flex justify-between items-center gap-3">
-                  <button onClick={() => handleOpenQrCode(listing)} className="text-green-600 font-medium hover:underline">
+                <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
+                  <button onClick={() => handleOpenQrCode(listing)} className="rounded-xl bg-green-50 px-4 py-3 text-center font-bold text-green-700 transition hover:bg-green-100 sm:bg-transparent sm:px-0 sm:py-0 sm:text-left sm:font-medium sm:hover:bg-transparent sm:hover:underline">
                     View QR Code
                   </button>
 
                   {displayStatus === 'live' && (
                     <button
                       onClick={() => setRescueConfirmListing(listing)}
-                      className="rounded-lg border border-orange-200 px-3 py-2 text-xs font-bold text-orange-600 transition hover:bg-orange-50 hover:text-orange-700"
+                      className="rounded-xl border border-orange-200 px-3 py-3 text-sm font-bold text-orange-600 transition hover:bg-orange-50 hover:text-orange-700 sm:py-2 sm:text-xs"
                     >
                       Simulate Rescue Mode
                     </button>
@@ -686,7 +692,7 @@ const RestaurantDashboard: React.FC = () => {
 
       {selectedListing && (
         <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+          <div className="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl sm:p-6">
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">{isQrLoading ? 'Loading QR Code' : qrModal?.title || 'Pickup QR'}</h2>
@@ -752,7 +758,7 @@ const RestaurantDashboard: React.FC = () => {
 
       {rescueConfirmListing && (
         <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+          <div className="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl sm:p-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-orange-100 text-orange-700">

@@ -52,19 +52,19 @@ const NGODashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gray-50 px-4 pb-28 pt-5 sm:px-6 sm:py-8 lg:px-8">
       <div className="max-w-5xl mx-auto">
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">NGO Dashboard</h1>
-            <p className="text-gray-600">Manage incoming food donations.</p>
+        <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-3xl font-black leading-tight tracking-tight text-gray-950 sm:text-4xl">NGO Dashboard</h1>
+            <p className="mt-2 text-base text-gray-600 sm:text-lg">Manage incoming food donations.</p>
           </div>
 
-          <div className="bg-white p-2 rounded-lg shadow-sm border flex items-center gap-3">
-            <span className="text-sm font-medium text-gray-700 ml-2">Status:</span>
+          <div className="flex w-full items-center justify-between gap-3 rounded-2xl border bg-white p-2 shadow-sm sm:w-auto sm:justify-start">
+            <span className="ml-2 text-sm font-bold text-gray-700">Status:</span>
             <button
               onClick={() => setIsAccepting(!isAccepting)}
-              className={`px-4 py-2 rounded-md font-bold transition ${isAccepting ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+              className={`rounded-xl px-4 py-2 text-sm font-bold transition ${isAccepting ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
             >
               {isAccepting ? 'Accepting Deliveries' : 'Not Accepting'}
             </button>
@@ -83,13 +83,13 @@ const NGODashboard: React.FC = () => {
               </div>
             ) : (
               incomingDeliveries.map(task => (
-                <div key={task.id} className="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500 animate-in slide-in-from-left-4">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
+                <div key={task.id} className="animate-in slide-in-from-left-4 rounded-2xl border-l-4 border-blue-500 bg-white p-5 shadow-md sm:p-6">
+                  <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
                       <h3 className="font-bold text-lg">{task.listingDetails?.itemName}</h3>
                       <p className="text-gray-600">From: {task.listingDetails?.restaurantName}</p>
                     </div>
-                    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-bold">ON THE WAY</span>
+                    <span className="self-start rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">ON THE WAY</span>
                   </div>
 
                   <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
@@ -97,7 +97,7 @@ const NGODashboard: React.FC = () => {
                     <span>Volunteer is en route to your location.</span>
                   </div>
 
-                  <button onClick={() => handleConfirmReceipt(task)} className="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition">
+                  <button onClick={() => handleConfirmReceipt(task)} className="w-full rounded-xl bg-green-600 py-3 font-bold text-white transition hover:bg-green-700">
                     Confirm Receipt
                   </button>
                 </div>

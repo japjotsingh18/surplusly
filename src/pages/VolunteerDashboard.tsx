@@ -108,23 +108,23 @@ const VolunteerDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gray-50 px-4 pb-28 pt-5 sm:px-6 sm:py-8 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Volunteer Dashboard</h1>
-          <p className="text-gray-600">Thank you for being a food rescue hero!</p>
+          <h1 className="text-3xl font-black leading-tight tracking-tight text-gray-950 sm:text-4xl">Volunteer Dashboard</h1>
+          <p className="mt-2 text-base text-gray-600 sm:text-lg">Thank you for being a food rescue hero!</p>
         </header>
 
-        <div className="flex space-x-4 mb-6 border-b border-gray-200">
+        <div className="mb-6 flex gap-2 overflow-x-auto border-b border-gray-200 pb-px [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-4">
           <button
             onClick={() => setActiveTab('available')}
-            className={`pb-2 px-4 font-medium ${activeTab === 'available' ? 'border-b-2 border-green-600 text-green-600' : 'text-gray-500'}`}
+            className={`shrink-0 px-4 pb-3 text-sm font-bold sm:text-base ${activeTab === 'available' ? 'border-b-2 border-green-600 text-green-600' : 'text-gray-500'}`}
           >
             Available Tasks
           </button>
           <button
             onClick={() => setActiveTab('my-tasks')}
-            className={`pb-2 px-4 font-medium ${activeTab === 'my-tasks' ? 'border-b-2 border-green-600 text-green-600' : 'text-gray-500'}`}
+            className={`shrink-0 px-4 pb-3 text-sm font-bold sm:text-base ${activeTab === 'my-tasks' ? 'border-b-2 border-green-600 text-green-600' : 'text-gray-500'}`}
           >
             My Active Rescues
           </button>
@@ -138,24 +138,24 @@ const VolunteerDashboard: React.FC = () => {
               </div>
             ) : (
               availableTasks.map(task => (
-                <div key={task.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                  <div>
+                <div key={task.id} className="flex flex-col gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between md:p-6">
+                  <div className="min-w-0">
                     <h3 className="font-bold text-lg">{task.itemName}</h3>
                     <p className="text-gray-600">{task.restaurantName}</p>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                      <div className="flex items-center gap-1">
-                        <MapPin size={16} />
-                        <span>{task.location?.address || 'Unknown Location'}</span>
+                    <div className="mt-2 flex flex-col gap-2 text-sm text-gray-500 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+                      <div className="flex items-start gap-1">
+                        <MapPin size={16} className="mt-0.5 shrink-0" />
+                        <span className="min-w-0 break-words">{task.location?.address || 'Unknown Location'}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Clock size={16} />
+                        <Clock size={16} className="shrink-0" />
                         <span className="text-red-500 font-medium">Pickup ASAP</span>
                       </div>
                     </div>
                   </div>
                   <button
                     onClick={() => handleAcceptTask(task)}
-                    className="bg-green-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-green-700 transition w-full md:w-auto"
+                    className="w-full rounded-xl bg-green-600 px-6 py-3 font-bold text-white transition hover:bg-green-700 md:w-auto"
                   >
                     Accept Rescue
                   </button>
@@ -173,13 +173,13 @@ const VolunteerDashboard: React.FC = () => {
               </div>
             ) : (
               myTasks.map(task => (
-                <div key={task.id} className="bg-white p-6 rounded-xl shadow-md border-l-4 border-green-500">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
+                <div key={task.id} className="rounded-2xl border-l-4 border-green-500 bg-white p-5 shadow-md sm:p-6">
+                  <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
                       <h3 className="font-bold text-xl">{task.listingDetails?.itemName}</h3>
                       <p className="text-gray-600">{task.listingDetails?.restaurantName}</p>
                     </div>
-                    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-bold uppercase">{task.status.replace('_', ' ')}</span>
+                    <span className="self-start rounded-full bg-blue-100 px-2 py-1 text-xs font-bold uppercase text-blue-800">{task.status.replace('_', ' ')}</span>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 bg-gray-50 p-4 rounded-lg">
@@ -201,7 +201,7 @@ const VolunteerDashboard: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:flex sm:flex-wrap">
                     {task.pickupQr && (
                       <button
                         onClick={() =>
@@ -211,7 +211,7 @@ const VolunteerDashboard: React.FC = () => {
                             description: 'Show this QR at the restaurant so they can verify you before handing over the food.',
                           })
                         }
-                        className="rounded-lg border border-green-200 px-4 py-2 text-sm font-semibold text-green-700 hover:bg-green-50"
+                        className="rounded-xl border border-green-200 px-4 py-3 text-sm font-bold text-green-700 hover:bg-green-50"
                       >
                         Show Pickup QR
                       </button>
@@ -220,7 +220,7 @@ const VolunteerDashboard: React.FC = () => {
                     {task.status === 'accepted' && (
                       <button
                         onClick={() => handleConfirmPickup(task)}
-                        className="bg-blue-600 text-white py-3 px-5 rounded-lg font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2"
+                        className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-bold text-white transition hover:bg-blue-700"
                       >
                         <Package size={20} /> Confirm Pickup
                       </button>
@@ -235,7 +235,7 @@ const VolunteerDashboard: React.FC = () => {
                             description: 'Show this QR at the NGO so they can confirm receipt and close the rescue.',
                           })
                         }
-                        className="rounded-lg border border-blue-200 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50"
+                        className="rounded-xl border border-blue-200 px-4 py-3 text-sm font-bold text-blue-700 hover:bg-blue-50"
                       >
                         Show Delivery QR
                       </button>
@@ -254,7 +254,7 @@ const VolunteerDashboard: React.FC = () => {
 
       {qrModal && (
         <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
+          <div className="max-h-[calc(100dvh-2rem)] w-full max-w-sm overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl sm:p-6">
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">{qrModal.title}</h2>

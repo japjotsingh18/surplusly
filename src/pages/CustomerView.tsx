@@ -571,13 +571,13 @@ const CustomerView: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900">
-      <div className="mx-auto max-w-[1200px] px-4 pb-8 pt-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1200px] px-4 pb-28 pt-4 sm:px-6 sm:pb-10 lg:px-8">
         <div className="sticky top-0 z-30 -mx-4 border-b border-slate-200 bg-[#F8FAFC]/95 px-4 pb-4 pt-2 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
           <div className="mx-auto max-w-[1200px]">
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
                 <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-500">Surplusly</p>
-                <h1 className="mt-2 text-[30px] font-extrabold leading-tight tracking-tight text-slate-950 sm:text-[34px]">
+                <h1 className="mt-2 text-[26px] font-extrabold leading-tight tracking-tight text-slate-950 sm:text-[34px]">
                   Find Surplus Food Near You
                 </h1>
                 <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-[15px]">
@@ -588,7 +588,7 @@ const CustomerView: React.FC = () => {
               {firebaseUser ? (
                 <button
                   onClick={() => logout()}
-                  className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                  className="inline-flex w-fit shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
                   title="Logout"
                 >
                   <LogOut size={16} />
@@ -597,7 +597,7 @@ const CustomerView: React.FC = () => {
               ) : (
                 <Link
                   to="/auth/login"
-                  className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                  className="inline-flex w-fit shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
                 >
                   <LogIn size={16} />
                   Sign in
@@ -792,14 +792,14 @@ const CustomerView: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="col-span-2 flex items-center justify-between gap-2 pt-1 sm:col-span-1 sm:flex-col sm:items-end sm:justify-center sm:pt-0">
+                        <div className="col-span-2 flex flex-col gap-2 pt-1 sm:col-span-1 sm:items-end sm:justify-center sm:pt-0">
                           <p className="text-sm font-semibold text-slate-900 sm:text-right">
                             Best price{' '}
                             <span className="text-[#22C55E]">{group.cheapestPrice === 0 ? 'Free' : `$${group.cheapestPrice}`}</span>
                           </p>
                           <button
                             onClick={() => setSelectedRestaurantId(group.id)}
-                            className="inline-flex items-center justify-center rounded-xl bg-[#22C55E] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-600"
+                            className="inline-flex w-full items-center justify-center rounded-xl bg-[#22C55E] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-600 sm:w-auto"
                           >
                             View Deals
                           </button>
@@ -812,10 +812,10 @@ const CustomerView: React.FC = () => {
             </section>
           ) : (
             <section className="space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
                 <button
                   onClick={() => setSelectedRestaurantId(null)}
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
                 >
                   <ArrowLeft size={16} />
                   Back
@@ -826,7 +826,7 @@ const CustomerView: React.FC = () => {
                     href={selectedRestaurant.mapsUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
                   >
                     <ExternalLink size={16} />
                     Open in Google Maps
@@ -846,7 +846,7 @@ const CustomerView: React.FC = () => {
                         <div className="mb-2 inline-flex rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide backdrop-blur-sm">
                           Restaurant details
                         </div>
-                        <h2 className="text-3xl font-black tracking-tight">{selectedRestaurant.name}</h2>
+                        <h2 className="break-words text-2xl font-black tracking-tight sm:text-3xl">{selectedRestaurant.name}</h2>
                         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs sm:text-sm">
                           <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 backdrop-blur-sm">
                             <Star size={13} className="fill-[#F97316] text-[#F97316]" />
@@ -861,7 +861,7 @@ const CustomerView: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="rounded-2xl bg-white/15 px-4 py-3 text-right text-sm backdrop-blur-sm">
+                      <div className="rounded-2xl bg-white/15 px-4 py-3 text-left text-sm backdrop-blur-sm sm:text-right">
                         <p className="text-white/80">Best deal</p>
                         <p className="text-xl font-black text-white">{selectedRestaurant.bestDiscount}% OFF</p>
                       </div>
@@ -952,13 +952,13 @@ const CustomerView: React.FC = () => {
                               </div>
                             </div>
 
-                            <div className="col-span-2 flex items-center justify-between gap-2 pt-1 sm:col-span-1 sm:flex-col sm:items-end sm:justify-center sm:pt-0">
+                            <div className="col-span-2 grid grid-cols-1 gap-2 pt-1 sm:col-span-1 sm:flex sm:flex-col sm:items-end sm:justify-center sm:pt-0">
                               {mapsUrl && (
                                 <a
                                   href={mapsUrl}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                                 >
                                   <ExternalLink size={15} />
                                   Maps
@@ -968,7 +968,7 @@ const CustomerView: React.FC = () => {
                               <button
                                 onClick={() => handleReserve(listing)}
                                 disabled={authLoading || isReservingId === listing.id}
-                                className="inline-flex min-w-[138px] items-center justify-center rounded-xl bg-[#22C55E] px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-600 disabled:opacity-70"
+                                className="inline-flex w-full min-w-[138px] items-center justify-center rounded-xl bg-[#22C55E] px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-600 disabled:opacity-70 sm:w-auto"
                               >
                                 {authLoading ? 'Checking...' : isReservingId === listing.id ? 'Reserving...' : 'Reserve Now'}
                               </button>
@@ -987,7 +987,7 @@ const CustomerView: React.FC = () => {
 
       {reservationModal && (
         <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-slate-950/55 p-4">
-          <div className="w-full max-w-sm rounded-[28px] bg-white p-7 text-center shadow-2xl">
+          <div className="max-h-[calc(100dvh-2rem)] w-full max-w-sm overflow-y-auto rounded-[28px] bg-white p-5 text-center shadow-2xl sm:p-7">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-[#22C55E]">
               <QrCode size={32} />
             </div>
@@ -1031,7 +1031,7 @@ const CustomerView: React.FC = () => {
 
       {authPromptListing && (
         <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-slate-950/55 p-4">
-          <div className="w-full max-w-md rounded-[28px] bg-white p-6 text-left shadow-2xl">
+          <div className="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-[28px] bg-white p-5 text-left shadow-2xl sm:p-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div
@@ -1095,7 +1095,7 @@ const CustomerView: React.FC = () => {
 
       {reserveError && (
         <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-slate-950/55 p-4">
-          <div className="w-full max-w-sm rounded-[28px] bg-white p-6 text-left shadow-2xl">
+          <div className="max-h-[calc(100dvh-2rem)] w-full max-w-sm overflow-y-auto rounded-[28px] bg-white p-5 text-left shadow-2xl sm:p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-orange-600">Reservation issue</p>

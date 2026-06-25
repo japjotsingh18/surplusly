@@ -20,4 +20,12 @@
 body {
   margin: 0;
   background: #f8fafc;
+  overflow-x: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
