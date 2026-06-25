@@ -1,0 +1,93 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function hasProfile() {
+      return signedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function hasRole(role) {
+      return hasProfile() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+
+    function ownsListing(listingId) {
+      return signedIn() &&
+        listingId is string &&
+        exists(/databases/$(database)/documents/listings/$(listingId)) &&
+        get(/databases/$(database)/documents/listings/$(listingId)).data.restaurantId == request.auth.uid;
+    }
+
+    match /users/{userId} {
+      allow create: if isOwner(userId);
+      allow read, update, delete: if isOwner(userId);
+    }
+
+    match /listings/{listingId} {
+      allow read: if signedIn();
+
+      allow create: if hasRole('restaurant') &&
+        request.resource.data.restaurantId == request.auth.uid;
+
+      allow update: if
+        (hasRole('restaurant') &&
+          resource.data.restaurantId == request.auth.uid &&
+          request.resource.data.restaurantId == request.auth.uid) ||
+        hasRole('volunteer') ||
+        (hasRole('ngo') && request.resource.data.status == 'delivered') ||
+        (hasRole('customer') &&
+          resource.data.status == 'live' &&
+          request.resource.data.status == 'reserved');
+    }
+
+    match /restaurant_locations/{locationId} {
+      allow read: if signedIn() &&
+        resource.data.restaurantId == request.auth.uid;
+
+      allow create: if hasRole('restaurant') &&
+        request.resource.data.restaurantId == request.auth.uid;
+
+      allow update, delete: if hasRole('restaurant') &&
+        resource.data.restaurantId == request.auth.uid &&
+        request.resource.data.restaurantId == request.auth.uid;
+    }
+
+    match /reservations/{reservationId} {
+      allow create: if hasRole('customer') &&
+        request.resource.data.customerId == request.auth.uid;
+
+      allow read: if signedIn() && (
+        resource.data.customerId == request.auth.uid ||
+        (
+          resource.data.listingId is string &&
+          exists(/databases/$(database)/documents/listings/$(resource.data.listingId)) &&
+          get(/databases/$(database)/documents/listings/$(resource.data.listingId)).data.restaurantId == request.auth.uid
+        )
+      );
+
+      allow update, delete: if signedIn() &&
+        (resource.data.customerId == request.auth.uid || ownsListing(resource.data.listingId));
+    }
+
+    match /rescue_tasks/{taskId} {
+      allow read: if signedIn();
+
+      allow create: if hasRole('volunteer') &&
+        request.resource.data.volunteerId == request.auth.uid;
+
+      allow update: if signedIn() &&
+        (resource.data.volunteerId == request.auth.uid ||
+         hasRole('ngo') ||
+         ownsListing(resource.data.listingId));
+    }
+  }
+}
