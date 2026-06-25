@@ -580,40 +580,42 @@ const CustomerView: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900">
       <div className="mx-auto max-w-[1200px] px-4 pb-28 pt-4 sm:px-6 sm:pb-10 lg:px-8">
-        <div className="sticky top-0 z-30 -mx-4 border-b border-slate-200 bg-[#F8FAFC]/95 px-4 pb-4 pt-2 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-          <div className="mx-auto max-w-[1200px]">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div className="min-w-0">
-                <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-500">Surplusly</p>
-                <h1 className="mt-2 text-[26px] font-extrabold leading-tight tracking-tight text-slate-950 sm:text-[34px]">
-                  Find Surplus Food Near You
-                </h1>
-                <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-[15px]">
-                  Reserve discounted food from nearby restaurants before it goes to waste.
-                </p>
-              </div>
-
-              {firebaseUser ? (
-                <button
-                  onClick={() => logout()}
-                  className="inline-flex w-fit shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                  title="Logout"
-                >
-                  <LogOut size={16} />
-                  Logout
-                </button>
-              ) : (
-                <Link
-                  to="/auth/login"
-                  className="inline-flex w-fit shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                >
-                  <LogIn size={16} />
-                  Sign in
-                </Link>
-              )}
+        <header className="pb-5 pt-2 sm:pb-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-500">Surplusly</p>
+              <h1 className="mt-2 text-[34px] font-black leading-tight tracking-tight text-slate-950 sm:text-[44px] md:text-[52px]">
+                Find Surplus Food Near You
+              </h1>
+              <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
+                Reserve discounted food from nearby restaurants before it goes to waste.
+              </p>
             </div>
 
-            <div className="mt-4 rounded-2xl border border-slate-200 bg-white shadow-sm">
+            {firebaseUser ? (
+              <button
+                onClick={() => logout()}
+                className="inline-flex w-fit shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                title="Logout"
+              >
+                <LogOut size={16} />
+                Logout
+              </button>
+            ) : (
+              <Link
+                to="/auth/login"
+                className="inline-flex w-fit shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <LogIn size={16} />
+                Sign in
+              </Link>
+            )}
+          </div>
+        </header>
+
+        <div className="sticky top-0 z-30 -mx-4 border-b border-slate-200 bg-[#F8FAFC]/95 px-4 py-3 shadow-sm backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+          <div className="mx-auto max-w-[1200px]">
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <input
