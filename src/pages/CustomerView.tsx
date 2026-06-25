@@ -37,6 +37,11 @@ type TravelEstimate = {
   driving: string;
 };
 
+const DEMO_CUSTOMER_COORDINATES = {
+  latitude: 33.4242,
+  longitude: -111.9281,
+};
+
 type RestaurantGroup = {
   id: string;
   name: string;
@@ -124,6 +129,10 @@ const calculateDistanceMiles = (
 const formatDistance = (distanceMiles: number | null) => {
   if (distanceMiles === null) {
     return 'Distance unavailable';
+  }
+
+  if (distanceMiles < 0.1) {
+    return '<0.1 mi away';
   }
 
   return `${distanceMiles.toFixed(1)} mi away`;
@@ -365,9 +374,8 @@ const CustomerView: React.FC = () => {
       return user.address.coordinates;
     }
 
-    const firstListing = liveListings[0];
-    return firstListing?.location?.coordinates ?? null;
-  }, [liveListings, user]);
+    return DEMO_CUSTOMER_COORDINATES;
+  }, [user]);
 
   const listingMatchesFilters = (listing: Listing) => {
     if (activeFilters.vegan && !hasDietaryTag(listing, 'vegan')) {
