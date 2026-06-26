@@ -6,6 +6,7 @@ import {
   Clock3,
   ExternalLink,
   Leaf,
+  Loader2,
   LogIn,
   LogOut,
   MapPin,
@@ -37,9 +38,51 @@ type TravelEstimate = {
   driving: string;
 };
 
-const DEMO_CUSTOMER_COORDINATES = {
-  latitude: 33.4242,
-  longitude: -111.9281,
+type CustomerLocation = {
+  label: string;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  };
+  source: 'current' | 'manual' | 'account';
+};
+
+const LOCATION_STORAGE_KEY = 'surplusly_customer_location';
+
+const LOCATION_PRESETS: CustomerLocation[] = [
+  {
+    label: 'ASU Tempe',
+    coordinates: { latitude: 33.4242, longitude: -111.9281 },
+    source: 'manual',
+  },
+  {
+    label: 'Downtown Tempe',
+    coordinates: { latitude: 33.4255, longitude: -111.94 },
+    source: 'manual',
+  },
+  {
+    label: 'Phoenix',
+    coordinates: { latitude: 33.4484, longitude: -112.074 },
+    source: 'manual',
+  },
+];
+
+const readStoredCustomerLocation = (): CustomerLocation | null => {
+  try {
+    const stored = window.localStorage.getItem(LOCATION_STORAGE_KEY);
+    if (!stored) {
+      return null;
+    }
+
+    const parsed = JSON.parse(stored) as CustomerLocation;
+    if (!parsed?.coordinates?.latitude || !parsed?.coordinates?.longitude) {
+      return null;
+    }
+
+    return parsed;
+  } catch {
+    return null;
+  }
 };
 
 type RestaurantGroup = {
@@ -128,7 +171,7 @@ const calculateDistanceMiles = (
 
 const formatDistance = (distanceMiles: number | null) => {
   if (distanceMiles === null) {
-    return 'Distance unavailable';
+    return 'Set location for distance';
   }
 
   if (distanceMiles < 0.1) {
@@ -311,6 +354,9 @@ const CustomerView: React.FC = () => {
     vegetarian: false,
     pickupNow: false,
   });
+  const [customerLocation, setCustomerLocation] = useState<CustomerLocation | null>(() => readStoredCustomerLocation());
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationNotice, setLocationNotice] = useState<string | null>(null);
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isReservingId, setIsReservingId] = useState<string | null>(null);
@@ -370,12 +416,8 @@ const CustomerView: React.FC = () => {
   );
 
   const userCoordinates = useMemo(() => {
-    if (user?.address?.coordinates) {
-      return user.address.coordinates;
-    }
-
-    return DEMO_CUSTOMER_COORDINATES;
-  }, [user]);
+    return customerLocation?.coordinates ?? null;
+  }, [customerLocation]);
 
   const listingMatchesFilters = (listing: Listing) => {
     if (activeFilters.vegan && !hasDietaryTag(listing, 'vegan')) {
@@ -496,6 +538,27 @@ const CustomerView: React.FC = () => {
     }
   }, [selectedRestaurant, selectedRestaurantId]);
 
+  useEffect(() => {
+    if (customerLocation || !user?.address?.coordinates) {
+      return;
+    }
+
+    setCustomerLocation({
+      label: 'Saved address',
+      coordinates: user.address.coordinates,
+      source: 'account',
+    });
+  }, [customerLocation, user]);
+
+  useEffect(() => {
+    if (!customerLocation) {
+      window.localStorage.removeItem(LOCATION_STORAGE_KEY);
+      return;
+    }
+
+    window.localStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(customerLocation));
+  }, [customerLocation]);
+
   const activePickupReservations = activeReservations.filter(
     reservation => getReservationDisplayStatus(reservation) === 'active'
   );
@@ -505,6 +568,40 @@ const CustomerView: React.FC = () => {
       ...current,
       [filter]: !current[filter],
     }));
+  };
+
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationNotice('Current location is not available in this browser. Choose a manual area instead.');
+      return;
+    }
+
+    setIsLocating(true);
+    setLocationNotice(null);
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        setCustomerLocation({
+          label: 'Current location',
+          coordinates: {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          },
+          source: 'current',
+        });
+        setIsLocating(false);
+      },
+      () => {
+        setCustomerLocation(null);
+        setLocationNotice('Location access was blocked. Distances are hidden until you choose an area manually.');
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 1000 * 60 * 5 }
+    );
+  };
+
+  const handleSetManualLocation = (location: CustomerLocation) => {
+    setCustomerLocation(location);
+    setLocationNotice(null);
   };
 
   const handleReserve = async (listing: Listing) => {
@@ -634,7 +731,12 @@ const CustomerView: React.FC = () => {
                 return (
                   <button
                     key={option.key}
-                    onClick={() => setSortBy(option.key)}
+                    onClick={() => {
+                      setSortBy(option.key);
+                      if (option.key === 'distance' && !customerLocation) {
+                        setLocationNotice('Add a location to sort restaurants by what is closest to you.');
+                      }
+                    }}
                     className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
                       active
                         ? 'bg-[#22C55E] text-white shadow-sm'
@@ -662,6 +764,67 @@ const CustomerView: React.FC = () => {
                   </button>
                 );
               })}
+            </div>
+
+            <div className="mt-3 rounded-2xl border border-slate-200 bg-white/80 p-3 shadow-sm">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-start gap-2 text-sm text-slate-600">
+                  <MapPin className="mt-0.5 shrink-0 text-[#22C55E]" size={16} />
+                  <div>
+                    <p className="font-bold text-slate-800">
+                      {customerLocation ? `Browsing near ${customerLocation.label}` : 'Add your location for real distances'}
+                    </p>
+                    <p className="mt-0.5 text-xs text-slate-500">
+                      {customerLocation
+                        ? 'Distances and nearby sorting use this location.'
+                        : 'Use current location or choose an area manually.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  <button
+                    onClick={handleUseCurrentLocation}
+                    disabled={isLocating}
+                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-slate-950 px-3 py-2 text-xs font-bold text-white transition hover:bg-slate-800 disabled:opacity-70"
+                  >
+                    {isLocating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Navigation size={14} />}
+                    {isLocating ? 'Locating...' : 'Use current'}
+                  </button>
+
+                  {LOCATION_PRESETS.map(location => (
+                    <button
+                      key={location.label}
+                      onClick={() => handleSetManualLocation(location)}
+                      className={`shrink-0 rounded-xl border px-3 py-2 text-xs font-bold transition ${
+                        customerLocation?.label === location.label
+                          ? 'border-green-300 bg-green-50 text-green-700'
+                          : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                      }`}
+                    >
+                      {location.label}
+                    </button>
+                  ))}
+
+                  {customerLocation && (
+                    <button
+                      onClick={() => {
+                        setCustomerLocation(null);
+                        setLocationNotice('Distances are hidden until you add a location again.');
+                      }}
+                      className="shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-500 transition hover:bg-slate-50"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {locationNotice && (
+                <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700">
+                  {locationNotice}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -928,12 +1091,12 @@ const CustomerView: React.FC = () => {
                             </div>
 
                             <div className="min-w-0">
-                              <div className="flex items-start justify-between gap-3">
+                              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
                                 <div className="min-w-0">
-                                  <h3 className="truncate text-[17px] font-bold text-slate-950">{listing.itemName}</h3>
+                                  <h3 className="break-words text-[17px] font-bold leading-tight text-slate-950">{listing.itemName}</h3>
                                   <p className="mt-1 line-clamp-2 text-sm leading-5 text-slate-500">{getListingDescription(listing)}</p>
                                 </div>
-                                <span className="shrink-0 rounded-full bg-orange-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-orange-600">
+                                <span className="w-fit shrink-0 rounded-full bg-orange-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-orange-600">
                                   {discount}% OFF
                                 </span>
                               </div>

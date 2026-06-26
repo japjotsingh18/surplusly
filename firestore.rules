@@ -33,7 +33,7 @@ service cloud.firestore {
     }
 
     match /listings/{listingId} {
-      allow read: if signedIn();
+      allow read: if true;
 
       allow create: if hasRole('restaurant') &&
         request.resource.data.restaurantId == request.auth.uid;
