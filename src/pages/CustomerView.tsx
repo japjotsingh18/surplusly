@@ -44,7 +44,7 @@ type CustomerLocation = {
     latitude: number;
     longitude: number;
   };
-  source: 'current' | 'manual' | 'account';
+  source: 'current' | 'manual' | 'account' | 'address';
 };
 
 const LOCATION_STORAGE_KEY = 'surplusly_customer_location';
@@ -231,6 +231,35 @@ const buildMapsUrl = (name?: string, address?: string) => {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryValue)}`;
 };
 
+type GeocodedAddressResult = {
+  latitude: number;
+  longitude: number;
+  label: string;
+};
+
+const geocodeManualAddress = async (address: string): Promise<GeocodedAddressResult> => {
+  const response = await fetch(
+    `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=us&q=${encodeURIComponent(address)}`
+  );
+
+  if (!response.ok) {
+    throw new Error('We could not look up that address right now. Please try again.');
+  }
+
+  const results = (await response.json()) as { lat?: string; lon?: string; display_name?: string }[];
+  const match = results[0];
+
+  if (!match?.lat || !match?.lon) {
+    throw new Error('We could not find that address. Try adding the city and state.');
+  }
+
+  return {
+    latitude: Number(match.lat),
+    longitude: Number(match.lon),
+    label: match.display_name ? match.display_name.split(',').slice(0, 3).join(',') : address,
+  };
+};
+
 const normalizeTag = (tag: string) => tag.trim().toLowerCase();
 
 const hasDietaryTag = (listing: Listing, tag: 'vegan' | 'vegetarian') => {
@@ -356,6 +385,9 @@ const CustomerView: React.FC = () => {
   });
   const [customerLocation, setCustomerLocation] = useState<CustomerLocation | null>(() => readStoredCustomerLocation());
   const [isLocating, setIsLocating] = useState(false);
+  const [showAddressEntry, setShowAddressEntry] = useState(false);
+  const [manualAddress, setManualAddress] = useState('');
+  const [isGeocodingAddress, setIsGeocodingAddress] = useState(false);
   const [locationNotice, setLocationNotice] = useState<string | null>(null);
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -604,6 +636,36 @@ const CustomerView: React.FC = () => {
     setLocationNotice(null);
   };
 
+  const handleManualAddressSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const address = manualAddress.trim();
+    if (address.length < 6) {
+      setLocationNotice('Enter a full address with city and state so we can calculate real distances.');
+      return;
+    }
+
+    setIsGeocodingAddress(true);
+    setLocationNotice(null);
+
+    try {
+      const result = await geocodeManualAddress(address);
+      setCustomerLocation({
+        label: result.label,
+        coordinates: {
+          latitude: result.latitude,
+          longitude: result.longitude,
+        },
+        source: 'address',
+      });
+      setShowAddressEntry(false);
+    } catch (error) {
+      setLocationNotice(error instanceof Error ? error.message : 'We could not find that address. Try a more precise address.');
+    } finally {
+      setIsGeocodingAddress(false);
+    }
+  };
+
   const handleReserve = async (listing: Listing) => {
     if (authLoading) {
       return;
@@ -771,13 +833,13 @@ const CustomerView: React.FC = () => {
                 <div className="flex items-start gap-2 text-sm text-slate-600">
                   <MapPin className="mt-0.5 shrink-0 text-[#22C55E]" size={16} />
                   <div>
-                    <p className="font-bold text-slate-800">
+                    <p className="break-words font-bold text-slate-800">
                       {customerLocation ? `Browsing near ${customerLocation.label}` : 'Add your location for real distances'}
                     </p>
                     <p className="mt-0.5 text-xs text-slate-500">
                       {customerLocation
                         ? 'Distances and nearby sorting use this location.'
-                        : 'Use current location or choose an area manually.'}
+                        : 'Use current location, enter an address, or choose an area manually.'}
                     </p>
                   </div>
                 </div>
@@ -790,6 +852,20 @@ const CustomerView: React.FC = () => {
                   >
                     {isLocating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Navigation size={14} />}
                     {isLocating ? 'Locating...' : 'Use current'}
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setShowAddressEntry(current => !current);
+                      setLocationNotice(null);
+                    }}
+                    className={`shrink-0 rounded-xl border px-3 py-2 text-xs font-bold transition ${
+                      showAddressEntry
+                        ? 'border-green-300 bg-green-50 text-green-700'
+                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                    }`}
+                  >
+                    Enter address
                   </button>
 
                   {LOCATION_PRESETS.map(location => (
@@ -810,6 +886,7 @@ const CustomerView: React.FC = () => {
                     <button
                       onClick={() => {
                         setCustomerLocation(null);
+                        setShowAddressEntry(false);
                         setLocationNotice('Distances are hidden until you add a location again.');
                       }}
                       className="shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-500 transition hover:bg-slate-50"
@@ -819,6 +896,31 @@ const CustomerView: React.FC = () => {
                   )}
                 </div>
               </div>
+
+              {showAddressEntry && (
+                <form onSubmit={handleManualAddressSubmit} className="mt-3 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+                  <label className="sr-only" htmlFor="customer-address">
+                    Enter your pickup address
+                  </label>
+                  <input
+                    id="customer-address"
+                    type="text"
+                    value={manualAddress}
+                    onChange={event => setManualAddress(event.target.value)}
+                    placeholder="Enter full address, city, state"
+                    className="min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-green-300 focus:ring-4 focus:ring-green-100"
+                    autoComplete="street-address"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isGeocodingAddress}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#22C55E] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-600 disabled:opacity-70"
+                  >
+                    {isGeocodingAddress ? <Loader2 className="h-4 w-4 animate-spin" /> : <MapPin size={16} />}
+                    {isGeocodingAddress ? 'Finding...' : 'Use address'}
+                  </button>
+                </form>
+              )}
 
               {locationNotice && (
                 <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700">
